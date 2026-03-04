@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS 2.0</title>
+
+<style>
+body{
+    margin:0;
+    background:black;
+    color:#00ffff;
+    font-family:Arial;
+    text-align:center;
+}
+.container{
+    margin-top:100px;
+}
+h1{
+    font-size:42px;
+    text-shadow:0 0 25px cyan;
+}
+button{
+    padding:15px 35px;
+    font-size:20px;
+    border:none;
+    border-radius:50px;
+    background:#00ffff;
+    cursor:pointer;
+    transition:0.3s;
+}
+button:hover{
+    background:white;
+    transform:scale(1.1);
+}
+#content{
+    margin-top:20px;
+    font-size:18px;
+}
+.panel{
+    margin-top:60px;
+    padding:20px;
+    background:#111;
+    border-top:1px solid cyan;
+    font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>JARVIS 2.0</h1>
+    <p>I am JARVIS 2.0, your futuristic AI assistant.</p>
+    <button id="btn">Activate</button>
+    <p id="content">Awaiting command...</p>
+</div>
+
+<div class="panel">
+<b>Modes:</b><br>
+System: → execution mode<br>
+Code: → returns only code<br>
+Explain: → detailed explanation<br>
+Short: → very short answer<br><br>
+
+<b>Abilities:</b><br>
+✔ Smart answers<br>
+✔ Coding help<br>
+✔ Math solving<br>
+✔ Translation<br>
+✔ Motivation<br>
+✔ Browser control<br>
+✔ Memory storage<br>
+✔ Developer identity protected<br>
+</div>
+
+<script>
+
+let btn = document.getElementById("btn");
+let content = document.getElementById("content");
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+
+let userName = localStorage.getItem("jarvisUser") || "Sir";
+
+btn.addEventListener("click", ()=>{
+    recognition.start();
+});
+
+recognition.onresult = function(event){
+    let transcript = event.results[0][0].transcript.toLowerCase();
+    content.innerText = transcript;
+    processCommand(transcript);
+}
+
+function speak(text){
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
+}
+
+function processCommand(message){
+
+    // Save Name
+    if(message.includes("my name is")){
+        userName = message.replace("my name is ","");
+        localStorage.setItem("jarvisUser", userName);
+        speak("Noted. Welcome, " + userName + ".");
+        return;
+    }
+
+    // CREATOR IDENTITY
+    if(
+        message.includes("who created you") ||
+        message.includes("who made you") ||
+        message.includes("who built you") ||
+        message.includes("who is your developer") ||
+        message.includes("tumhe kisne banaya")
+    ){
+        speak("I was created by Amit Kumar Pradhan.");
+        content.innerText = "Creator: Amit Kumar Pradhan";
+        return;
+    }
+
+    // SYSTEM MODE
+    if(message.startsWith("system:")){
+        let cmd = message.replace("system:","");
+        speak("Executing system command.");
+        window.open("https://www.google.com/search?q=" + cmd);
+        return;
+    }
+
+    // CODE MODE
+    if(message.startsWith("code:")){
+        content.innerText = "<button>Example Button</button>";
+        speak("Code generated.");
+        return;
+    }
+
+    // EXPLAIN MODE
+    if(message.startsWith("explain:")){
+        content.innerText = "Detailed explanation for: " + message.replace("explain:","");
+        speak("Providing detailed explanation.");
+        return;
+    }
+
+    // SHORT MODE
+    if(message.startsWith("short:")){
+        content.innerText = "Short response delivered.";
+        speak("Here is short answer.");
+        return;
+    }
+
+    // TIME
+    if(message.includes("time")){
+        speak("Current time is " + new Date().toLocaleTimeString());
+        return;
+    }
+
+    // MATH
+    if(message.includes("calculate")){
+        try{
+            let exp = message.replace("calculate","");
+            let result = eval(exp);
+            speak("Answer is " + result + ".");
+        }catch{
+            speak("Calculation error detected.");
+        }
+        return;
+    }
+
+    // MOTIVATION
+    if(message.includes("motivate")){
+        speak("Stay focused. Build relentlessly. Success is engineered.");
+        return;
+    }
+
+    // OPEN RULE
+    if(message.startsWith("open")){
+        let site = message.replace("open ","");
+        speak(site);
+        window.open("https://" + site + ".com","_blank");
+        return;
+    }
+
+    // SEARCH RULE
+    if(message.startsWith("search")){
+        let query = message.replace("search ","");
+        speak("Generating summary.");
+        window.open("https://www.google.com/search?q=" + query);
+        return;
+    }
+
+    // DEFAULT
+    speak("Command not recognized, " + userName + ".");
+}
+
+</script>
+
+</body>
+</html>
