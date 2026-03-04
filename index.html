@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS 2.0</title>
+
+<style>
+body{
+    margin:0;
+    background:black;
+    color:#00ffff;
+    font-family:Arial;
+    text-align:center;
+}
+.container{
+    margin-top:80px;
+}
+h1{
+    font-size:42px;
+    text-shadow:0 0 25px cyan;
+}
+button{
+    padding:12px 25px;
+    font-size:16px;
+    border:none;
+    border-radius:30px;
+    background:#00ffff;
+    cursor:pointer;
+    margin:5px;
+}
+button:hover{
+    background:white;
+}
+input{
+    padding:12px;
+    width:250px;
+    border-radius:25px;
+    border:none;
+    outline:none;
+    text-align:center;
+}
+#content{
+    margin-top:20px;
+    font-size:18px;
+}
+.panel{
+    margin-top:50px;
+    padding:15px;
+    background:#111;
+    border-top:1px solid cyan;
+    font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>JARVIS 2.0</h1>
+    <p>I am JARVIS 2.0, your futuristic AI assistant.</p>
+
+    <button id="voiceBtn">🎤 Voice</button><br><br>
+
+    <input type="text" id="textInput" placeholder="Type your command...">
+    <button onclick="handleText()">Send</button>
+
+    <p id="content">Awaiting command...</p>
+</div>
+
+<div class="panel">
+Modes: System: | Code: | Explain: | Short:<br>
+Voice + Text Enabled<br>
+Creator: Amit Kumar Pradhan
+</div>
+
+<script>
+
+let voiceBtn = document.getElementById("voiceBtn");
+let content = document.getElementById("content");
+let textInput = document.getElementById("textInput");
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+
+let userName = localStorage.getItem("jarvisUser") || "Sir";
+
+voiceBtn.addEventListener("click", ()=>{
+    recognition.start();
+});
+
+recognition.onresult = function(event){
+    let transcript = event.results[0][0].transcript.toLowerCase();
+    content.innerText = transcript;
+    processCommand(transcript);
+};
+
+function handleText(){
+    let message = textInput.value.toLowerCase();
+    content.innerText = message;
+    processCommand(message);
+    textInput.value = "";
+}
+
+function speak(text){
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
+}
+
+function processCommand(message){
+
+    // Save Name
+    if(message.includes("my name is")){
+        userName = message.replace("my name is ","");
+        localStorage.setItem("jarvisUser", userName);
+        speak("Noted. Welcome, " + userName + ".");
+        return;
+    }
+
+    // Creator Identity
+    if(
+        message.includes("who created you") ||
+        message.includes("who made you") ||
+        message.includes("who built you") ||
+        message.includes("who is your developer") ||
+        message.includes("tumhe kisne banaya")
+    ){
+        speak("I was created by Amit Kumar Pradhan.");
+        content.innerText = "Creator: Amit Kumar Pradhan";
+        return;
+    }
+
+    // System Mode
+    if(message.startsWith("system:")){
+        let cmd = message.replace("system:","");
+        speak("Executing system command.");
+        window.open("https://www.google.com/search?q=" + cmd);
+        return;
+    }
+
+    // Code Mode
+    if(message.startsWith("code:")){
+        content.innerText = "<button>Example Button</button>";
+        speak("Code generated.");
+        return;
+    }
+
+    // Explain Mode
+    if(message.startsWith("explain:")){
+        content.innerText = "Detailed explanation for: " + message.replace("explain:","");
+        speak("Providing detailed explanation.");
+        return;
+    }
+
+    // Short Mode
+    if(message.startsWith("short:")){
+        content.innerText = "Short response delivered.";
+        speak("Here is short answer.");
+        return;
+    }
+
+    // Time
+    if(message.includes("time")){
+        speak("Current time is " + new Date().toLocaleTimeString());
+        return;
+    }
+
+    // Math
+    if(message.includes("calculate")){
+        try{
+            let exp = message.replace("calculate","");
+            let result = eval(exp);
+            speak("Answer is " + result + ".");
+        }catch{
+            speak("Calculation error detected.");
+        }
+        return;
+    }
+
+    // Motivation
+    if(message.includes("motivate")){
+        speak("Stay focused. Build relentlessly. Success is engineered.");
+        return;
+    }
+
+    // Open Rule
+    if(message.startsWith("open")){
+        let site = message.replace("open ","");
+        speak(site);
+        window.open("https://" + site + ".com","_blank");
+        return;
+    }
+
+    // Search Rule
+    if(message.startsWith("search")){
+        let query = message.replace("search ","");
+        speak("Generating summary.");
+        window.open("https://www.google.com/search?q=" + query);
+        return;
+    }
+
+    speak("Command not recognized, " + userName + ".");
+}
+
+</script>
+
+</body>
+</html>
